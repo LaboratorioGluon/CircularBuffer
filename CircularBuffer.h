@@ -23,6 +23,8 @@ public:
 
     CIRCULAR_BUFFER_STATUS Write(T data);
 
+    uint16_t Available();
+
     //CIRCULAR_BUFFER_STATUS Write(T *data, uint32_t len);
 
     bool isFull(){ return mIsFull; }
@@ -37,6 +39,8 @@ private:
     T *pWrite, *pRead;
     
     bool mIsFull, mIsEmpty;
+
+    uint16_t count;
 
 
     CIRCULAR_BUFFER_STATUS IncrementRead();
@@ -59,11 +63,18 @@ CircularBuffer<T>::CircularBuffer(uint8_t pBufferSize){
 
     pRead = mBuffer;
     pWrite = mBuffer;
+
+    count = 0;
 }
 
 template<class T>
 void CircularBuffer<T>::Init(){
 
+}
+
+template<class T>
+uint16_t CircularBuffer<T>::Available(){
+    return count;
 }
 
 template<class T>
@@ -113,6 +124,7 @@ CIRCULAR_BUFFER_STATUS CircularBuffer<T>::Write(T *data, uint32_t len){
 
 template<class T>
 CIRCULAR_BUFFER_STATUS CircularBuffer<T>::IncrementRead(){
+    count--;
     if(pRead == mBuffer + mBufferSize){
             pRead = mBuffer;
     }else{
@@ -130,10 +142,13 @@ CIRCULAR_BUFFER_STATUS CircularBuffer<T>::IncrementRead(){
 template<class T>
 CIRCULAR_BUFFER_STATUS CircularBuffer<T>::IncrementWrite(){
 
+    count++;
+
     if(pWrite == mBuffer + mBufferSize){
          pWrite = mBuffer;
     }else{
          pWrite++;
+         
     }
 
     if (pRead == pWrite){
